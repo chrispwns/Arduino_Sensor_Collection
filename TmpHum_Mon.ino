@@ -1,14 +1,16 @@
 /**
- * @file: TmpHum_Mon.ino
- * @purpose: allows for collection of temperature and humidity data using the SHT30A-EASY
- * @author: Christopher Naron
- */
+ *  @file: TmpHum_Mon.ino
+ *  @purpose: allows for collection of temperature and humidity data using the SHT30A-EASY
+ *  @author: Christopher Naron
+*/
+
+volatile bool celsius = false; // global to allow manipulation after execution.
 
 void setup() {
   // Initialize serial input with a poling rate of 9600.
   const int POLLING_RATE = 9600;
   Serial.begin(POLLING_RATE);
-}
+} // end setup
 
 void loop() {
   // Initialize sensors.
@@ -25,32 +27,31 @@ void loop() {
   float temperature = -88.375 + (393.75 * (tempVoltage / VDD));  // fahrenheit by default
   float humidity = -12.5 + (125 * (humidityVoltage / VDD));
 
-  const bool celsius = false;  // set true to switch to celsius.
   dataOutput(temperature, humidity, celsius);
   delay(1000);
-}
+} // end loop
 
 /**
- * analogToDigital converts the 10 bit analog input into a voltage
- *  output for further calculations.
- * @param sensor. int current sensor analog value from analogRead.
- * @return float. Current voltage.
- */
+ *  analogToDigital converts the 10 bit analog input into a voltage
+ *   output for further calculations.
+ *  @param sensor. int current sensor analog value from analogRead.
+ *  @return float. Current voltage.
+*/
 float analogToDigital(int sensorValue) {
   const float BASE_VOLTAGE = 5.0;
   const int ANALOG_RANGE = 1023;
   return sensorValue * (BASE_VOLTAGE / ANALOG_RANGE);  // standard ADC formula.
-}
+} // end analogToDigital
 
 /**
  * dataOuput prints the current values to the serial monitor
- *  mostly used as an organization tool.
- * @param temperature. float containing current temperature.
- * @param humidity. float containing current humidity percent.
- * @param celcius. bool that sets format to celcius when true.
- *   Default value = false.
- * @return none
- */
+ *   mostly used as an organization tool.
+ *  @param temperature. float containing current temperature.
+ *  @param humidity. float containing current humidity percent.
+ *  @param celcius. bool that sets format to celcius when true.
+ *    Default value = false.
+ *  @return none
+*/
 void dataOutput(float temperature, float humidity, bool celcius) {
   // Initialize strings/chars for output.
   const char PCNT = 37;  // percent ascii code. Used in output formatting.
@@ -63,13 +64,41 @@ void dataOutput(float temperature, float humidity, bool celcius) {
   CELSIUS += DEG;
   FAHRENHEIGHT += DEG;
 
-  if (celcius == true){
-    temperature = (temperature - 32) * 5/9; // convert to celsius.
+  if (celcius == true) {
+    temperature = (temperature - 32) * 5 / 9; // convert to celsius.
     Serial.println(TEMP_STR + temperature + CELSIUS + HUMID_STR + humidity +
                    PCNT);
   }
-  else{
+  else {
     Serial.println(TEMP_STR + temperature + FAHRENHEIGHT + HUMID_STR +
                    humidity + PCNT);
   }
-}
+}// end dataOutput
+
+/**
+ *  serialEvent() allows for discrete swapping of the output format.
+ *   if c is sent from the serial input the formatting will be celsius
+ *   if f is sent from the serial input it will be fahrenheit
+ *   if not c or f, it will do nothing.
+ *  Note: Is called implicitly on execution, doesn't need to be
+ *   explicitly called.
+ *   
+ *  @return none
+*/
+void serialEvent() {
+  while (Serial.available()) {
+    // read character sent from serial input
+    char keybIn = (char)Serial.read();
+    
+    // change format to f or c discretely.
+    switch (keybIn) {
+      case 'f':
+        celsius = false;
+        break;
+      case 'c':
+        celsius = true;
+        break;
+    }
+  }
+} // end serialEvent
+
