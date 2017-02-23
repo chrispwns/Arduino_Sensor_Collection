@@ -8,8 +8,8 @@ volatile bool celsius = false; // global to allow manipulation after execution.
 
 void setup() {
   // Initialize serial input with a poling rate of 9600.
-  const int POLLING_RATE = 9600;
-  Serial.begin(POLLING_RATE);
+  const int BAUD_RATE = 9600;
+  Serial.begin(BAUD_RATE);
 } // end setup
 
 void loop() {
@@ -55,14 +55,10 @@ float analogToDigital(int sensorValue) {
 void dataOutput(float temperature, float humidity, bool celcius) {
   // Initialize strings/chars for output.
   const char PCNT = 37;  // percent ascii code. Used in output formatting.
-  const char DEG = 176;  // ° symbol. Used in output formatting
   const String TEMP_STR = "Temperature: ";
   const String HUMID_STR = "\tHumidity: ";
   const String FAHRENHEIGHT = " F";
   const String CELSIUS = " C";
-  // add a degree symbol to temperature units to remove any ambiguity.
-  CELSIUS += DEG;
-  FAHRENHEIGHT += DEG;
 
   if (celcius == true) {
     temperature = (temperature - 32) * 5 / 9; // convert to celsius.
@@ -81,8 +77,7 @@ void dataOutput(float temperature, float humidity, bool celcius) {
  *   if f is sent from the serial input it will be fahrenheit
  *   if not c or f, it will do nothing.
  *  Note: Is called implicitly on execution, doesn't need to be
- *   explicitly called.
- *   
+ *   explicitly called.  
  *  @return none
 */
 void serialEvent() {
