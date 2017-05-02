@@ -12,6 +12,8 @@ SoftwareSerial gpsSerial(8, 7);
 
 const int CHIP_SELECT 		= 10;   // SD card select pin
 const int UPDATE_INTERVAL 	= 5000; // update interval for sd card
+const int TEMP_PIN		= 0;	// analog pin for temperature reading
+const int HUMIDITY_PIN		= 1;	// analog pin for humidity reading
 
 void setup() { 	
 	Serial.begin(115200);
@@ -41,13 +43,13 @@ void loop() {
 	
 	/* Update the sd card at the update interval defined above
 	 *  give it a 20ms tolerance since millis() isn't a perfect clock. 
-	 * also added a check to  make sure initial fix is captured before
-	 *  pushing data to SD*/
-	if( (millis() % UPDATE_INTERVAL < 20) && ( millis() > 5000 )) {
-		SDLog( Temperature().read(0), Humidity().read(1), // temp/humidity
-				gps.date.day(), gps.date.month(), gps.date.year(), // date
-				gps.time.hour(), gps.time.minute(), gps.time.second(), // time
-				gps.location.lng(), gps.location.lat()); // long/lat 
+	 *  pushing data to SD
+	*/
+	if( (millis() % UPDATE_INTERVAL < 20) ) {
+		SDLog( Temperature().read(TEMP_PIN), Humidity().read(HUMIDITY_PIN), 	// temp/humidity
+				gps.date.day(), gps.date.month(), gps.date.year(), 	// date
+				gps.time.hour(), gps.time.minute(), gps.time.second(),	// time
+				gps.location.lng(), gps.location.lat()); 		// long/lat 
 	}
 
 	delay(10);
