@@ -38,9 +38,9 @@ SDLog::SDLog(float temperature, float humidity,
 		data.print(second);
 		data.print(F(","));
 		
-		data.print(longitude);
+		data.print(longitude, 6); // change the 6 to adjust precision
 		data.print(F("°,"));
-		data.print(latitude);
+		data.print(latitude, 6); // change the 6 to adjust precision
 		data.println(F("°,"));
 		
 		data.close();
